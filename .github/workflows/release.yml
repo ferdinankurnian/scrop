@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build x86_64 Arch Linux binary
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:base-devel
+
+    steps:
+      - name: Install build dependencies
+        run: pacman -Syu --needed --noconfirm git rust cairo pango github-cli jq
+
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Verify tag matches Cargo.toml
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          manifest_version="$(cargo metadata --locked --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "scrop") | .version')"
+
+          if [[ "$version" != "$manifest_version" ]]; then
+            printf 'tag version %s does not match Cargo.toml version %s\n' "$version" "$manifest_version" >&2
+            exit 1
+          fi
+
+      - name: Run tests
+        run: cargo test --locked
+
+      - name: Build release binary
+        run: cargo build --release --locked
+
+      - name: Package release asset
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          archive="scrop-${version}-x86_64.tar.gz"
+
+          install -Dm755 target/release/scrop staging/scrop
+          install -Dm644 LICENSE staging/LICENSE
+          strip staging/scrop
+
+          mkdir -p dist
+          tar -C staging -czf "dist/$archive" scrop LICENSE
+          (
+            cd dist
+            sha256sum "$archive" > "$archive.sha256"
+          )
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/* --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* \
+              --generate-notes \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" \
+              --verify-tag
+          fi

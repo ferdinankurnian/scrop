@@ -106,3 +106,15 @@ cargo test
 cargo clippy --all-targets -- -D warnings
 cargo build
 ```
+
+## Releases
+
+GitHub Actions builds the x86_64 Arch Linux binary and publishes a tarball plus checksum when a
+version tag is pushed. The tag must match the version in `Cargo.toml`.
+
+```sh
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The release tarball is intended for the `scrop-bin` AUR package.
