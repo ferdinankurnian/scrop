@@ -1,0 +1,19 @@
+[package]
+name = "scrop"
+version = "0.1.0"
+edition = "2024"
+description = "A precise Wayland region selector with resize and confirm controls"
+license = "MIT"
+repository = "https://github.com/ferdinankurnian/scrop"
+
+[dependencies]
+cairo-rs = "0.22"
+clap = { version = "4.5", features = ["derive"] }
+memmap2 = "0.9"
+pango = "0.22"
+pangocairo = "0.22"
+tempfile = "3.27"
+thiserror = "2.0"
+wayland-client = "0.31"
+wayland-protocols = { version = "0.32", default-features = false, features = ["client", "staging", "unstable"] }
+wayland-protocols-wlr = { version = "0.3", default-features = false, features = ["client"] }
