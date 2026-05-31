@@ -9,6 +9,11 @@ use std::process::ExitCode;
 fn main() -> ExitCode {
     let cli = Cli::parse();
 
+    if cli.version {
+        println!("scrop {}", env!("CARGO_PKG_VERSION"));
+        return ExitCode::SUCCESS;
+    }
+
     match cli.command {
         Some(Command::Select) | None => match app::run(cli.verbose) {
             Ok(Some(selection)) => {
@@ -25,15 +30,19 @@ fn main() -> ExitCode {
 }
 
 #[derive(Debug, Parser)]
-#[command(author, version, about = "Precise Wayland region selector")]
+#[command(
+    author,
+    version,
+    about = "Precise Wayland region selector",
+    disable_version_flag = true
+)]
 struct Cli {
+    /// Print version
+    #[arg(short = 'v', long = "version", global = true)]
+    version: bool,
+
     /// Increase diagnostic output; may be repeated
-    #[arg(
-        short = 'v',
-        long = "verbose",
-        action = clap::ArgAction::Count,
-        global = true
-    )]
+    #[arg(long = "verbose", action = clap::ArgAction::Count, global = true)]
     verbose: u8,
 
     #[command(subcommand)]

@@ -10,7 +10,13 @@ so it can be used as a drop-in selector for tools such as
 
 ## Install
 
-Install build dependencies on Arch:
+Install the binary package from the AUR:
+
+```sh
+yay -S scrop-bin
+```
+
+Or install build dependencies on Arch:
 
 ```sh
 sudo pacman -S cairo pango wayland
@@ -70,12 +76,12 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
-  -v, --verbose...  Increase diagnostic output; may be repeated
+  -v, --version     Print version
+      --verbose...  Increase diagnostic output; may be repeated
   -h, --help        Print help
-  -V, --version     Print version
 ```
 
-`-v` is repeatable. Diagnostics go to stderr so stdout remains suitable for command
+`--verbose` is repeatable. Diagnostics go to stderr so stdout remains suitable for command
 substitution.
 
 ## Exit Codes
@@ -113,8 +119,8 @@ GitHub Actions builds the x86_64 Arch Linux binary and publishes a tarball plus 
 version tag is pushed. The tag must match the version in `Cargo.toml`.
 
 ```sh
-git tag v0.1.0
-git push origin v0.1.0
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
 The release tarball is intended for the `scrop-bin` AUR package.
